@@ -136,6 +136,8 @@ parts:
       - INCLUDES: "-I$SNAPCRAFT_STAGE/usr/include"
     override-build: |
       snapcraftctl build
+      mkdir -p $SNAPCRAFT_PART_INSTALL/usr/lib/vdr
+      mv $SNAPCRAFT_PART_INSTALL/libvdr-streamdev-* $SNAPCRAFT_PART_INSTALL/usr/lib/vdr/
       mkdir -p $SNAPCRAFT_PART_INSTALL/usr/share/vdr/plugins/streamdev-server
       cp -a streamdev-server/* $SNAPCRAFT_PART_INSTALL/usr/share/vdr/plugins/streamdev-server/
   epgsearch:
