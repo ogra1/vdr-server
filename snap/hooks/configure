@@ -1,0 +1,43 @@
+#! /bin/sh
+
+if [ ! -e /var/lib/vdr/channels.conf ]; then
+    cp -a $SNAP/var/lib/vdr/* /var/lib/vdr/
+fi
+
+if [ ! -e /var/lib/vdr/plugins ]; then
+    mkdir -p /var/lib/vdr/plugins/vnsiserver
+fi
+
+if [ "$(snapctl get live)" = "true" ]; then
+    if [ ! -e /usr/share/vdr/plugins/live ]; then
+      mkdir -p /usr/share/vdr/plugins/live
+      cp -a $SNAP/usr/share/vdr/plugins/live/* \
+	      /usr/share/vdr/plugins/live/
+    fi
+fi
+
+if [ "$(snapctl get streamdev-server)" = "true" ]; then
+    if [ ! -e /var/lib/vdr/plugins/streamdev-server ]; then
+      mkdir -p /var/lib/vdr/plugins/streamdev-server
+      cp -a $SNAP/usr/share/vdr/plugins/streamdev-server/* \
+	      /var/lib/vdr/plugins/streamdev-server/
+    fi
+fi
+
+if [ "$(snapctl get epgsearch)" = "true" ]; then
+    if [ ! -e /var/lib/vdr/plugins/epgsearch ]; then
+      mkdir -p /var/lib/vdr/plugins/epgsearch
+      cp -a $SNAP/var/lib/vdr/plugins/epgsearch/* \
+	      /var/lib/vdr/plugins/epgsearch/
+    fi
+fi
+
+if [ "$(snapctl get epgfixer)" = "true" ]; then
+    if [ ! -e /var/lib/vdr/plugins/epgfixer ]; then
+      mkdir -p /var/lib/vdr/plugins/epgfixer
+      cp -a $SNAP/var/lib/vdr/plugins/epgfixer/* \
+	      /var/lib/vdr/plugins/epgfixer/
+    fi
+fi
+
+snapctl restart vdr-server.vdr-server

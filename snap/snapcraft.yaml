@@ -1,0 +1,190 @@
+name: vdr-server
+base: core20
+adopt-info: vdr
+summary: the Video Disk Recorder
+description: |
+  This vdr-server snap ships with vdr and the vnsiserver plugin enabled by
+  default. Optionally the streamdev (server), epgsearch, epgfixer, live and
+  dvbapi plugins can be enabled and disabled at runtime using
+
+      snap set vdr-server pluginname=true
+
+  All configuration files are stored in /var/snap/vdr-server/current/lib/
+
+  To allow vdr to work seameless please connect the dvb, hardware-observe,
+  network-control and process-control interfaces of this snap.
+
+  If you need additional plugins included in the snap, please file an issue
+  at https://github.com/ogra1/vdr-server/issues
+
+grade: stable
+confinement: strict
+
+architectures:
+  - build-on: arm64
+  - build-on: armhf
+  - build-on: amd64
+
+apps:
+  vdr-server:
+    command: bin/launch.sh
+    daemon: simple
+    restart-condition: always
+    environment:
+      FONTCONFIG_PATH: "$SNAP/etc/fonts"
+      FONTCONFIG_FILE: "$SNAP/etc/fonts/fonts.conf"
+    plugs:
+      - dvb
+      - hardware-observe
+      - network
+      - network-bind
+      - network-control
+      - process-control
+
+layout:
+  /etc/vdr/conf.d:
+    bind: $SNAP_DATA/conf.d
+  /var/lib/vdr:
+    bind: $SNAP_DATA/lib
+  /var/cache/vdr:
+    bind: $SNAP_DATA/cache
+  /srv/vdr/video:
+    bind: $SNAP_COMMON
+  /usr/share/fonts:
+    bind: $SNAP/usr/share/fonts
+  /usr/share/locale:
+    bind: $SNAP/usr/share/locale
+  /usr/lib/vdr:
+    bind: $SNAP/usr/lib/vdr
+  /usr/share/vdr:
+    bind: $SNAP_DATA/share
+
+parts:
+  vdr:
+    source: git://projects.vdr-developer.org/vdr.git
+    plugin: make
+    build-packages:
+      - gettext
+      - g++
+      - libcap-dev
+      - libfontconfig1-dev
+      - libjpeg-dev
+      - libncurses5-dev
+    build-environment:
+      - PREFIX: "/usr"
+    override-build: |
+      snapcraftctl build
+      # set package version to vdr version
+      VER="$(grep ^Version vdr.pc | sed 's/^.*: //')"
+      snapcraftctl set-version $VER
+      sed -i "s/\/usr/\/snap\/$SNAPCRAFT_PROJECT_NAME\/current\/usr/" \
+              $SNAPCRAFT_PART_INSTALL/etc/fonts/fonts.conf
+    stage-packages:
+      - fontconfig
+      - fonts-dejavu-core
+      - libcap2
+      - libfreetype6
+      - libfontconfig1
+      - libjpeg-turbo8
+      - libncurses6
+    prime:
+      - -etc/vdr
+      - -etc/ld.so.conf.d
+      - -srv
+      - -usr/include
+      - -usr/lib/pkgconfig
+      - -usr/share/man
+      - -usr/share/vdr
+  vnsiserver:
+    source: https://github.com/FernetMenta/vdr-plugin-vnsiserver.git
+    plugin: make
+    after: [ vdr ]
+    build-environment:
+      - PREFIX: "/usr"
+      - VDRDIR: "$SNAPCRAFT_STAGE/usr/lib/pkgconfig"
+      - VDRSRC: "$SNAPCRAFT_STAGE/usr"
+      - API1733: "true"
+  live:
+    source: https://github.com/vdr-projects/vdr-plugin-live.git
+    plugin: make
+    after: [ vdr ]
+    build-environment:
+      - PREFIX: "/usr"
+      - VDRDIR: "$SNAPCRAFT_STAGE/usr/lib/pkgconfig"
+      - INCLUDES: "-I$SNAPCRAFT_STAGE/usr/include"
+    override-build: |
+      snapcraftctl build
+      mkdir -p $SNAPCRAFT_PART_INSTALL/usr/share/vdr/plugins/live
+      cp -a live/* $SNAPCRAFT_PART_INSTALL/usr/share/vdr/plugins/live/
+    build-packages:
+      - libcxxtools-dev
+      - libpcre3-dev
+      - libssl-dev
+      - libtntnet-dev
+    stage-packages:
+      - libcxxtools9v5
+      - libpcrecpp0v5
+      - libssl1.1
+      - libtntnet12v5
+  streamdev:
+    source: https://github.com/vdr-projects/vdr-plugin-streamdev.git
+    plugin: make
+    after: [ vdr ]
+    build-environment:
+      - PREFIX: "/usr"
+      - VDRDIR: "$SNAPCRAFT_STAGE/usr/lib/pkgconfig"
+      - INCLUDES: "-I$SNAPCRAFT_STAGE/usr/include"
+    override-build: |
+      snapcraftctl build
+      mkdir -p $SNAPCRAFT_PART_INSTALL/usr/share/vdr/plugins/streamdev-server
+      cp -a streamdev-server/* $SNAPCRAFT_PART_INSTALL/usr/share/vdr/plugins/streamdev-server/
+  epgsearch:
+    source: https://github.com/vdr-projects/vdr-plugin-epgsearch.git
+    plugin: make
+    after: [ vdr ]
+    build-environment:
+      - PREFIX: "/usr"
+      - VDRDIR: "$SNAPCRAFT_STAGE/usr/lib/pkgconfig"
+      - INCLUDES: "-I$SNAPCRAFT_STAGE/usr/include"
+  epgfixer:
+    source: https://github.com/vdr-projects/vdr-plugin-epgfixer.git
+    plugin: make
+    after: [ vdr ]
+    build-environment:
+      - PREFIX: "/usr"
+      - VDRDIR: "$SNAPCRAFT_STAGE/usr/lib/pkgconfig"
+      - INCLUDES: "-I$SNAPCRAFT_STAGE/usr/include"
+    build-packages:
+      - libpcre2-dev
+  dvbapi:
+    source: https://github.com/manio/vdr-plugin-dvbapi.git
+    source-tag: v2.2.5
+    plugin: make
+    after: [ vdr ]
+    build-environment:
+      - PREFIX: "/usr"
+      - VDRDIR: "$SNAPCRAFT_STAGE/usr/lib/pkgconfig"
+      - INCLUDES: "-I$SNAPCRAFT_STAGE/usr/include"
+      - on armhf:
+        - LIBDVBCSA: "1"
+      - on arm64:
+        - LIBDVBCSA: "1"
+    build-packages:
+      - libcrypto++-dev
+      - on armhf:
+        - libdvbcsa-dev
+      - on arm64:
+        - libdvbcsa-dev
+      - libssl-dev
+    stage-packages:
+      - libcrypto++6
+      - on armhf:
+        - libdvbcsa1
+      - on arm64:
+        - libdvbcsa1
+      - libssl1.1
+  launcher:
+    source: .
+    plugin: dump
+    organize:
+      launch.sh: bin/launch.sh
