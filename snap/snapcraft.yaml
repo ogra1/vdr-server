@@ -64,6 +64,7 @@ layout:
 parts:
   vdr:
     source: git://projects.vdr-developer.org/vdr.git
+    source-tag: 2.5.1
     plugin: make
     build-packages:
       - gettext
