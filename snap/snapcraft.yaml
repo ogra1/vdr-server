@@ -64,7 +64,7 @@ layout:
 parts:
   vdr:
     source: git://projects.vdr-developer.org/vdr.git
-    source-commit: 31b87544f1ca5580ad96d080e5b93793775b4fdb
+    source-commit: ada85b693e41d9f41393e266f9a7829a6f69ac6b
     plugin: make
     build-packages:
       - gettext
