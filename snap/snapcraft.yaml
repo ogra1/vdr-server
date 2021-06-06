@@ -116,7 +116,7 @@ parts:
       - VDRDIR: "$SNAPCRAFT_STAGE/usr/lib/pkgconfig"
       - INCLUDES: "-I$SNAPCRAFT_STAGE/usr/include"
     override-build: |
-      sed -i 's/define __STL_CONFIG_H/define DISABLE_TEMPLATES_COLLIDING_WITH_STL/' live.h
+      sed -i 's/define __STL_CONFIG_H/define DISABLE_TEMPLATES_COLLIDING_WITH_STL/' live.h tools.h
       snapcraftctl build
       mkdir -p $SNAPCRAFT_PART_INSTALL/usr/share/vdr/plugins/live
       cp -a live/* $SNAPCRAFT_PART_INSTALL/usr/share/vdr/plugins/live/
