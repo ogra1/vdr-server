@@ -64,7 +64,7 @@ layout:
 parts:
   vdr:
     source: git://projects.vdr-developer.org/vdr.git
-    source-commit: 54c4e69299b9c818c768e398d171d67cbd4fdea3
+    source-tag: 2.5.4
     plugin: make
     build-packages:
       - gettext
@@ -108,6 +108,8 @@ parts:
       - VDRSRC: "$SNAPCRAFT_STAGE/usr"
       - API1733: "true"
     override-build: |
+      # fix upstream dropping of __STL_CONFIG_H:
+      # http://git.tvdr.de/?p=vdr.git;a=commitdiff;h=54c4e69299b9c818c768e398d171d67cbd4fdea3
       sed -i 's/define __STL_CONFIG_H/define DISABLE_TEMPLATES_COLLIDING_WITH_STL/' streamer.c
       snapcraftctl build
   live:
@@ -119,6 +121,8 @@ parts:
       - VDRDIR: "$SNAPCRAFT_STAGE/usr/lib/pkgconfig"
       - INCLUDES: "-I$SNAPCRAFT_STAGE/usr/include"
     override-build: |
+      # fix upstream dropping of __STL_CONFIG_H:
+      # http://git.tvdr.de/?p=vdr.git;a=commitdiff;h=54c4e69299b9c818c768e398d171d67cbd4fdea3
       sed -i 's/define __STL_CONFIG_H/define DISABLE_TEMPLATES_COLLIDING_WITH_STL/' live.h tools.h
       snapcraftctl build
       mkdir -p $SNAPCRAFT_PART_INSTALL/usr/share/vdr/plugins/live
