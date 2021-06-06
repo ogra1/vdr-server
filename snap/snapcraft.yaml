@@ -107,6 +107,9 @@ parts:
       - VDRDIR: "$SNAPCRAFT_STAGE/usr/lib/pkgconfig"
       - VDRSRC: "$SNAPCRAFT_STAGE/usr"
       - API1733: "true"
+    override-build: |
+      sed -i 's/define __STL_CONFIG_H/define DISABLE_TEMPLATES_COLLIDING_WITH_STL/' streamer.c
+      snapcraftctl build
   live:
     source: https://github.com/vdr-projects/vdr-plugin-live.git
     plugin: make
