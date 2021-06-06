@@ -145,6 +145,7 @@ parts:
       - PREFIX: "/usr"
       - VDRDIR: "$SNAPCRAFT_STAGE/usr/lib/pkgconfig"
       - INCLUDES: "-I$SNAPCRAFT_STAGE/usr/include"
+      - DEPRECATED_SETCURRENTCHANNEL: "1"
     override-build: |
       snapcraftctl build
       mkdir -p $SNAPCRAFT_PART_INSTALL/usr/lib/vdr
