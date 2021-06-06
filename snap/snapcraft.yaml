@@ -76,6 +76,10 @@ parts:
     build-environment:
       - PREFIX: "/usr"
     override-build: |
+      # revert
+      # http://git.tvdr.de/?p=vdr.git;a=commitdiff;h=b7112ece6c5c6e0af362d9f01717bd80bbf6d344
+      # until streamdev plugin is fixed
+      sed -i 's/DEPRECATED_SETCURRENTCHANNEL 0/DEPRECATED_SETCURRENTCHANNEL 1/' device.h
       snapcraftctl build
       # set package version to vdr version
       VER="$(grep ^Version vdr.pc | sed 's/^.*: //')"
@@ -147,8 +151,6 @@ parts:
       - INCLUDES: "-I$SNAPCRAFT_STAGE/usr/include"
     override-build: |
       snapcraftctl build
-       sed -i 's/SetCurrentChannel(CurrentChannel)/SetCurrentChannel(CurrentChannel->Number())/' \
-           server/connectionVTP.c
       mkdir -p $SNAPCRAFT_PART_INSTALL/usr/lib/vdr
       mv $SNAPCRAFT_PART_INSTALL/libvdr-streamdev-* $SNAPCRAFT_PART_INSTALL/usr/lib/vdr/
       mkdir -p $SNAPCRAFT_PART_INSTALL/usr/share/vdr/plugins/streamdev-server
