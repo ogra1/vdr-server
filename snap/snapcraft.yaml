@@ -80,6 +80,8 @@ parts:
       # http://git.tvdr.de/?p=vdr.git;a=commitdiff;h=b7112ece6c5c6e0af362d9f01717bd80bbf6d344
       # until streamdev plugin is fixed
       sed -i 's/DEPRECATED_SETCURRENTCHANNEL 0/DEPRECATED_SETCURRENTCHANNEL 1/' device.h
+      # workaround for ioprio_set denials https://bit.ly/3Apywdx
+      sed -i 's/Thread->SetIOPriority/\/\/ Thread->SetIOPriority/' thread.c
       snapcraftctl build
       # set package version to vdr version
       VER="$(grep ^Version vdr.pc | sed 's/^.*: //')"
