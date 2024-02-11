@@ -63,8 +63,8 @@ layout:
 
 parts:
   vdr:
-    source: git://projects.vdr-developer.org/vdr.git
-    source-tag: 2.5.4
+    source: https://github.com/vdr-projects/vdr.git
+    source-tag: 2.6.6
     plugin: make
     build-packages:
       - gettext
@@ -165,6 +165,8 @@ parts:
       - PREFIX: "/usr"
       - VDRDIR: "$SNAPCRAFT_STAGE/usr/lib/pkgconfig"
       - INCLUDES: "-I$SNAPCRAFT_STAGE/usr/include"
+    stage-packages:
+      - libpcre2-posix2
   epgfixer:
     source: https://github.com/vdr-projects/vdr-plugin-epgfixer.git
     plugin: make
